@@ -3,6 +3,7 @@ import sqlite3
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QStringListModel, QDate, Qt
 from mainwin import Ui_MainWindow 
+from Weather import Weather
 
 class MyApp(QMainWindow):
     def __init__(self):
@@ -18,6 +19,7 @@ class MyApp(QMainWindow):
         self.ui.listView.clicked.connect(self.handle_task_click)
         self.conn = sqlite3.connect('tasks.db')
         self.cur = self.conn.cursor()
+        self.weathertest()
 
         self.selected_task = None
         # Jos tablea ei ole eli siis voi poistaa kun on pysyvä db
@@ -34,6 +36,11 @@ class MyApp(QMainWindow):
         ''')
         self.conn.commit()
     
+    def weathertest(self):
+        fetchedweather = Weather.fetchWeather()
+        max_temp, max_temp_hour = fetchedweather
+        self.ui.label1.setText(str(max_temp) + ' ' + str(max_temp_hour))
+
     def handle_task_click(self, index):
         self.selected_task = self.task_model.data(index, Qt.DisplayRole)
 
@@ -78,14 +85,6 @@ class MyApp(QMainWindow):
         self.cur.execute("DELETE FROM tasks")
         self.conn.commit()
         self.handle_date_selection()
-
-
-class Date:
-    def __init__(self, year, month, day, tasks):
-        self.year = year
-        self.month = month
-        self.day = day
-        self.tasks = tasks
 
 def main():
     app = QApplication(sys.argv)
