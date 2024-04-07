@@ -77,24 +77,24 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.label1 = QtWidgets.QLabel(self.centralwidget)
-        self.label1.setGeometry(QtCore.QRect(430, 50, 100, 20))
+        self.label1.setGeometry(QtCore.QRect(500, 50, 150, 50))
         self.label1.setObjectName("label1")
         self.label1.setText("Lämpötila")
 
         self.label2 = QtWidgets.QLabel(self.centralwidget)
-        self.label2.setGeometry(QtCore.QRect(530, 100, 100, 20))
+        self.label2.setGeometry(QtCore.QRect(500, 205, 150, 50))
         self.label2.setObjectName("label2")
-        self.label2.setText("Label 2")
+        self.label2.setText("Tuulen nopeus")
 
         self.label3 = QtWidgets.QLabel(self.centralwidget)
-        self.label3.setGeometry(QtCore.QRect(630, 150, 100, 20))
+        self.label3.setGeometry(QtCore.QRect(650, 50, 150, 50))
         self.label3.setObjectName("label3")
-        self.label3.setText("Label 3")
+        self.label3.setText("Sade")
 
         self.label4 = QtWidgets.QLabel(self.centralwidget)
-        self.label4.setGeometry(QtCore.QRect(730, 200, 100, 20))
+        self.label4.setGeometry(QtCore.QRect(650, 205, 150, 50))
         self.label4.setObjectName("label4")
-        self.label4.setText("Label 4")
+        self.label4.setText("UV")
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
