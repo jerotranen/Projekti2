@@ -14,12 +14,15 @@ class MyApp(QMainWindow):
         self.ui.pushButton.clicked.connect(self.handle_push_button)
         self.ui.pushButton_2.clicked.connect(self.handle_push_button2)
         self.ui.pushButton_3.clicked.connect(self.handle_delete_button)
+        self.ui.horizontalSlider.valueChanged.connect(self.handle_slider_change)
+        self.ui.horizontalSlider.setMaximum(23)
         self.task_model = QStringListModel()
         self.ui.listView.setModel(self.task_model)
         self.ui.listView.clicked.connect(self.handle_task_click)
         self.conn = sqlite3.connect('tasks.db')
         self.cur = self.conn.cursor()
-        #self.weathertest()
+        self.hourly_weather_data = Weather.fetchWeather()
+        self.weathertest(0)
 
         self.selected_task = None
         # Jos tablea ei ole eli siis voi poistaa kun on pysyvä db
@@ -36,22 +39,22 @@ class MyApp(QMainWindow):
         ''')
         self.conn.commit()
     
-    def weathertest(self):
-        max_temp, max_temp_time, max_wind_speed, max_wind_speed_time, max_rain, max_rain_time, max_uv_index, max_uv_index_time = Weather.fetchWeather()
-        
-        max_temp_str = "{:.1f}".format(max_temp)
-        max_wind_speed_str = "{:.1f}".format(max_wind_speed)
-        max_rain_str = "{:.1f}".format(max_rain)
-        max_uv_index_str = "{:.1f}".format(max_uv_index)
-        max_temp_hour = max_temp_time.strftime("%H")
-        max_wind_speed_hour = max_wind_speed_time.strftime("%H")
-        max_rain_hour = max_rain_time.strftime("%H")
-        max_uv_index_hour = max_uv_index_time.strftime("%H")
-        
-        self.ui.label1.setText(f'Max Temp: {max_temp_str}°C\n at {max_temp_hour}')
-        self.ui.label2.setText(f'Max Wind Speed: {max_wind_speed_str} m/s\n at {max_wind_speed_hour}')
-        self.ui.label3.setText(f'Max Rain: {max_rain_str} mm\n at {max_rain_hour}')
-        self.ui.label4.setText(f'Max UV Index: {max_uv_index_str}\n at {max_uv_index_hour}')
+    def weathertest(self, slider_value):
+        selected_hour_data = self.hourly_weather_data.iloc[slider_value]
+
+        selected_hour = selected_hour_data['date'].strftime("%H:%M")
+        temp = "{:.1f}".format(selected_hour_data['temperature_2m'])
+        wind_speed = "{:.1f}".format(selected_hour_data['wind_speed_10m'])
+        rain = "{:.1f}".format(selected_hour_data['rain'])
+        uv_index = "{:.1f}".format(selected_hour_data['uv_index'])
+
+        self.ui.label1.setText(f'Temp: {temp}°C\n at {selected_hour}')
+        self.ui.label2.setText(f'Wind Speed: {wind_speed} m/s\n at {selected_hour}')
+        self.ui.label3.setText(f'Rain: {rain} mm\n at {selected_hour}')
+        self.ui.label4.setText(f'UV Index: {uv_index}\n at {selected_hour}')
+
+    def handle_slider_change(self, value):
+        self.weathertest(value)
 
     def handle_task_click(self, index):
         self.selected_task = self.task_model.data(index, Qt.DisplayRole)

@@ -54,23 +54,9 @@ class Weather:
         hourly_dataframe = pd.DataFrame(data = hourly_data)
         print(hourly_dataframe)
 
-        # Calculate max temperature and its time
-        max_temp = hourly_dataframe['temperature_2m'].max()
-        max_temp_time = hourly_dataframe.loc[hourly_dataframe['temperature_2m'].idxmax()]['date']
-
-        # Calculate max wind speed and its time
-        max_wind_speed = hourly_dataframe['wind_speed_10m'].max()
-        max_wind_speed_time = hourly_dataframe.loc[hourly_dataframe['wind_speed_10m'].idxmax()]['date']
-
-        # Calculate max amount of rain and its time
-        max_rain = hourly_dataframe['rain'].max()
-        max_rain_time = hourly_dataframe.loc[hourly_dataframe['rain'].idxmax()]['date']
-
-        # Calculate max UV index and its time
-        max_uv_index = hourly_dataframe['uv_index'].max()
-        max_uv_index_time = hourly_dataframe.loc[hourly_dataframe['uv_index'].idxmax()]['date']
-
-        return max_temp, max_temp_time, max_wind_speed, max_wind_speed_time, max_rain, max_rain_time, max_uv_index, max_uv_index_time
         #output_file = "hourly_weather_data.txt"
         #hourly_dataframe.to_csv(output_file, sep='\t', index=False)
         #print(f"Data saved to {output_file}")
+
+        return hourly_dataframe
+        
