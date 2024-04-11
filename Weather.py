@@ -21,7 +21,7 @@ class Weather:
             "longitude": 22.2666,
             "hourly": ["temperature_2m", "rain", "wind_speed_10m", "uv_index"],
             "wind_speed_unit": "ms",
-            "forecast_days": 1
+            "forecast_days": 14
         }
         responses = openmeteo.weather_api(url, params=params)
 

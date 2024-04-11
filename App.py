@@ -22,7 +22,6 @@ class MyApp(QMainWindow):
         self.conn = sqlite3.connect('tasks.db')
         self.cur = self.conn.cursor()
         self.hourly_weather_data = Weather.fetchWeather()
-        self.weathertest(0)
 
         self.selected_task = None
         # Jos tablea ei ole eli siis voi poistaa kun on pysyvä db
@@ -39,10 +38,41 @@ class MyApp(QMainWindow):
         ''')
         self.conn.commit()
     
-    def weathertest(self, slider_value):
-        selected_hour_data = self.hourly_weather_data.iloc[slider_value]
+    def weathertest(self, slider_value, selected_date):
+        today = QDate.currentDate()
+        if selected_date < today or selected_date > today.addDays(14):
+            # If the selected date is in the past or more than 14 days in the future
+            # Display a notification to the user
+            self.ui.label1.setText("Weather not available")
+            self.ui.label2.setText("")
+            self.ui.label3.setText("")
+            self.ui.label4.setText("")
+            return
 
-        selected_hour = selected_hour_data['date'].strftime("%H:%M")
+        year = selected_date.year()
+        month = selected_date.month()
+        day = selected_date.day()
+
+        # Check if 'date' is already the index
+        if 'date' not in self.hourly_weather_data.index.names:
+            self.hourly_weather_data.set_index('date', inplace=True)
+        
+        selected_hour_data = self.hourly_weather_data[
+            (self.hourly_weather_data.index.year == year) &
+            (self.hourly_weather_data.index.month == month) &
+            (self.hourly_weather_data.index.day == day)]   
+
+        if slider_value < 0 or slider_value >= len(selected_hour_data):
+            # If the slider value is out of bounds
+            self.ui.label1.setText("Weather not available")
+            self.ui.label2.setText("")
+            self.ui.label3.setText("")
+            self.ui.label4.setText("")
+            return
+
+        selected_hour_data = selected_hour_data.iloc[slider_value]
+
+        selected_hour = selected_hour_data.name.strftime("%H:%M")
         temp = "{:.1f}".format(selected_hour_data['temperature_2m'])
         wind_speed = "{:.1f}".format(selected_hour_data['wind_speed_10m'])
         rain = "{:.1f}".format(selected_hour_data['rain'])
@@ -53,8 +83,10 @@ class MyApp(QMainWindow):
         self.ui.label3.setText(f'Rain: {rain} mm\n at {selected_hour}')
         self.ui.label4.setText(f'UV Index: {uv_index}\n at {selected_hour}')
 
+
     def handle_slider_change(self, value):
-        self.weathertest(value)
+        selected_date = self.ui.calendarWidget.selectedDate()
+        self.weathertest(value, selected_date)
 
     def handle_task_click(self, index):
         self.selected_task = self.task_model.data(index, Qt.DisplayRole)
@@ -78,6 +110,7 @@ class MyApp(QMainWindow):
         self.cur.execute("SELECT task FROM tasks WHERE year=? AND month=? AND day=?", (year, month, day))
         tasks = [row[0] for row in self.cur.fetchall()]
         self.task_model.setStringList(tasks)
+        self.weathertest(0, selected_date)
 
     # Yhden task lisääminen päivälle
     def handle_push_button(self):
