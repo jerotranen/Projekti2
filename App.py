@@ -10,6 +10,8 @@ class MyApp(QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        # GUI:n ja koodin linkitys
         self.ui.calendarWidget.selectionChanged.connect(self.handle_date_selection)
         self.ui.pushButton.clicked.connect(self.handle_push_button)
         self.ui.pushButton_2.clicked.connect(self.handle_push_button2)
@@ -21,9 +23,12 @@ class MyApp(QMainWindow):
         self.ui.listView.clicked.connect(self.handle_task_click)
         self.conn = sqlite3.connect('tasks.db')
         self.cur = self.conn.cursor()
+        
+        #Säädatan haku alussa, jotta API ei kuormitu
         self.hourly_weather_data = Weather.fetchWeather()
 
         self.selected_task = None
+
         # Jos tablea ei ole eli siis voi poistaa kun on pysyvä db
         self.create_tasks_table()
 
@@ -38,11 +43,11 @@ class MyApp(QMainWindow):
         ''')
         self.conn.commit()
     
+    # Funktio joka näyttää haetun säädatan käyttöliittymässä seuraavan 14 päivän aikana
     def weathertest(self, slider_value, selected_date):
         today = QDate.currentDate()
         if selected_date < today or selected_date > today.addDays(14):
-            # If the selected date is in the past or more than 14 days in the future
-            # Display a notification to the user
+
             self.ui.label1.setText("Weather not available")
             self.ui.label2.setText("")
             self.ui.label3.setText("")
@@ -53,7 +58,6 @@ class MyApp(QMainWindow):
         month = selected_date.month()
         day = selected_date.day()
 
-        # Check if 'date' is already the index
         if 'date' not in self.hourly_weather_data.index.names:
             self.hourly_weather_data.set_index('date', inplace=True)
         
@@ -63,7 +67,6 @@ class MyApp(QMainWindow):
             (self.hourly_weather_data.index.day == day)]   
 
         if slider_value < 0 or slider_value >= len(selected_hour_data):
-            # If the slider value is out of bounds
             self.ui.label1.setText("Weather not available")
             self.ui.label2.setText("")
             self.ui.label3.setText("")
@@ -79,18 +82,21 @@ class MyApp(QMainWindow):
         uv_index = "{:.1f}".format(selected_hour_data['uv_index'])
 
         self.ui.label1.setText(f'Temp: {temp}°C\n at {selected_hour}')
-        self.ui.label2.setText(f'Wind Speed: {wind_speed} m/s\n at {selected_hour}')
+        self.ui.label2.setText(f'Wind: {wind_speed} m/s\n at {selected_hour}')
         self.ui.label3.setText(f'Rain: {rain} mm\n at {selected_hour}')
-        self.ui.label4.setText(f'UV Index: {uv_index}\n at {selected_hour}')
+        self.ui.label4.setText(f'UV: {uv_index}\n at {selected_hour}')
 
 
+    # Kellonajan valinta säädatalle
     def handle_slider_change(self, value):
         selected_date = self.ui.calendarWidget.selectedDate()
         self.weathertest(value, selected_date)
 
+    # Yksittäisen tehtävän valitseminen
     def handle_task_click(self, index):
         self.selected_task = self.task_model.data(index, Qt.DisplayRole)
 
+    # Yksittäisen tehtävän poistaminen valitsemisen jälkeen
     def handle_delete_button(self):
         if self.selected_task:
             selected_date = self.ui.calendarWidget.selectedDate()
@@ -102,6 +108,7 @@ class MyApp(QMainWindow):
             self.handle_date_selection()
             self.selected_task = None
 
+    # Päivän valitseminen kalenterista
     def handle_date_selection(self):
         selected_date = self.ui.calendarWidget.selectedDate()
         year = selected_date.year()
@@ -112,7 +119,7 @@ class MyApp(QMainWindow):
         self.task_model.setStringList(tasks)
         self.weathertest(0, selected_date)
 
-    # Yhden task lisääminen päivälle
+    # Yhden tehtävän lisääminen päivälle
     def handle_push_button(self):
         text = self.ui.lineEdit.text()
         tasks = []
