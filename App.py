@@ -38,7 +38,8 @@ class MyApp(QMainWindow):
                 year INTEGER,
                 month INTEGER,
                 day INTEGER,
-                task TEXT
+                task TEXT,
+                time TEXT
             )
         ''')
         self.conn.commit()
@@ -99,11 +100,14 @@ class MyApp(QMainWindow):
     # Yksittäisen tehtävän poistaminen valitsemisen jälkeen
     def handle_delete_button(self):
         if self.selected_task:
+            # Koska selected_task on time + task, niin erotetaan ne toisistaan, jotta SQL toimii oikein
+            # Muuten yksittäistä taskia ei voi jostain syystä poistaa vain päivämäärällä(?)
+            selected_time, selected_task = self.selected_task.split(': ', 1)
             selected_date = self.ui.calendarWidget.selectedDate()
             year = selected_date.year()
             month = selected_date.month()
             day = selected_date.day()
-            self.cur.execute("DELETE FROM tasks WHERE task=? AND year=? AND month=? AND day=?", (self.selected_task, year, month, day))
+            self.cur.execute("DELETE FROM tasks WHERE time=? AND task=? AND year=? AND month=? AND day=?", (selected_time, selected_task, year, month, day))
             self.conn.commit()
             self.handle_date_selection()
             self.selected_task = None
@@ -114,14 +118,16 @@ class MyApp(QMainWindow):
         year = selected_date.year()
         month = selected_date.month()
         day = selected_date.day()
-        self.cur.execute("SELECT task FROM tasks WHERE year=? AND month=? AND day=?", (year, month, day))
-        tasks = [row[0] for row in self.cur.fetchall()]
-        self.task_model.setStringList(tasks)
+        self.cur.execute("SELECT task, time FROM tasks WHERE year=? AND month=? AND day=? ORDER BY time", (year, month, day))
+        task_data = self.cur.fetchall()
+        tasks_with_time = [f"{row[1]}: {row[0]}" for row in task_data]  # Concatenate time with task
+        self.task_model.setStringList(tasks_with_time)
         self.weathertest(0, selected_date)
 
     # Yhden tehtävän lisääminen päivälle
     def handle_push_button(self):
         text = self.ui.lineEdit.text()
+        selected_time = self.ui.timeEdit.time().toString("HH:mm")
         tasks = []
         tasks.append(text)
         self.ui.lineEdit.clear()
@@ -130,7 +136,7 @@ class MyApp(QMainWindow):
         month = selected_date.month()
         day = selected_date.day()
 
-        self.cur.execute("INSERT INTO tasks (year, month, day, task) VALUES (?, ?, ?, ?)", (year, month, day, text))
+        self.cur.execute("INSERT INTO tasks (year, month, day, task, time) VALUES (?, ?, ?, ?, ?)", (year, month, day, text, selected_time))
         self.conn.commit()
         # Refreshaa lähettämisen jälkeen
         self.handle_date_selection()
