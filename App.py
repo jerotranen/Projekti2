@@ -13,9 +13,9 @@ class MyApp(QMainWindow):
 
         # GUI:n ja koodin linkitys
         self.ui.calendarWidget.selectionChanged.connect(self.handle_date_selection)
-        self.ui.pushButton.clicked.connect(self.handle_push_button)
-        self.ui.pushButton_2.clicked.connect(self.handle_push_button2)
-        self.ui.pushButton_3.clicked.connect(self.handle_delete_button)
+        self.ui.pushButton.clicked.connect(self.deleteOne)
+        self.ui.pushButton_2.clicked.connect(self.sendOne)
+        self.ui.pushButton_3.clicked.connect(self.deleteAll)
         self.ui.horizontalSlider.valueChanged.connect(self.handle_slider_change)
         self.ui.horizontalSlider.setMaximum(23)
         self.task_model = QStringListModel()
@@ -49,10 +49,10 @@ class MyApp(QMainWindow):
         today = QDate.currentDate()
         if selected_date < today or selected_date > today.addDays(14):
 
-            self.ui.label1.setText("Weather not available")
-            self.ui.label2.setText("")
-            self.ui.label3.setText("")
-            self.ui.label4.setText("")
+            self.ui.label.setText("Weather N/A")
+            self.ui.label_2.setText("")
+            self.ui.label_3.setText("")
+            self.ui.label_4.setText("")
             return
 
         year = selected_date.year()
@@ -68,10 +68,10 @@ class MyApp(QMainWindow):
             (self.hourly_weather_data.index.day == day)]   
 
         if slider_value < 0 or slider_value >= len(selected_hour_data):
-            self.ui.label1.setText("Weather not available")
-            self.ui.label2.setText("")
-            self.ui.label3.setText("")
-            self.ui.label4.setText("")
+            self.ui.label.setText("Weather N/A")
+            self.ui.label_2.setText("")
+            self.ui.label_3.setText("")
+            self.ui.label_4.setText("")
             return
 
         selected_hour_data = selected_hour_data.iloc[slider_value]
@@ -82,10 +82,10 @@ class MyApp(QMainWindow):
         rain = "{:.1f}".format(selected_hour_data['rain'])
         uv_index = "{:.1f}".format(selected_hour_data['uv_index'])
 
-        self.ui.label1.setText(f'Temp: {temp}°C\n at {selected_hour}')
-        self.ui.label2.setText(f'Wind: {wind_speed} m/s\n at {selected_hour}')
-        self.ui.label3.setText(f'Rain: {rain} mm\n at {selected_hour}')
-        self.ui.label4.setText(f'UV: {uv_index}\n at {selected_hour}')
+        self.ui.label.setText(f'Temp: {temp}°C\n at {selected_hour}')
+        self.ui.label_2.setText(f'Wind: {wind_speed} m/s\n at {selected_hour}')
+        self.ui.label_3.setText(f'Rain: {rain} mm\n at {selected_hour}')
+        self.ui.label_4.setText(f'UV: {uv_index}\n at {selected_hour}')
 
 
     # Kellonajan valinta säädatalle
@@ -98,7 +98,7 @@ class MyApp(QMainWindow):
         self.selected_task = self.task_model.data(index, Qt.DisplayRole)
 
     # Yksittäisen tehtävän poistaminen valitsemisen jälkeen
-    def handle_delete_button(self):
+    def deleteOne(self):
         if self.selected_task:
             # Koska selected_task on time + task, niin erotetaan ne toisistaan, jotta SQL toimii oikein
             # Muuten yksittäistä taskia ei voi jostain syystä poistaa vain päivämäärällä(?)
@@ -125,7 +125,7 @@ class MyApp(QMainWindow):
         self.weathertest(0, selected_date)
 
     # Yhden tehtävän lisääminen päivälle
-    def handle_push_button(self):
+    def sendOne(self):
         text = self.ui.lineEdit.text()
         selected_time = self.ui.timeEdit.time().toString("HH:mm")
         tasks = []
@@ -142,7 +142,7 @@ class MyApp(QMainWindow):
         self.handle_date_selection()
     
     # Poistaa kaikki taskit kaikkialta
-    def handle_push_button2(self):
+    def deleteAll(self):
         self.cur.execute("DELETE FROM tasks")
         self.conn.commit()
         self.handle_date_selection()
