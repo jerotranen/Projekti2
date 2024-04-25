@@ -62,6 +62,25 @@ class Ui_MainWindow(object):
         self.horizontalSlider = QtWidgets.QSlider(self.centralwidget)
         self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider.setObjectName("horizontalSlider")
+        self.horizontalSlider.setStyleSheet(
+            """
+            QSlider::groove:horizontal {
+                border: 1px solid #999999;
+                height: 8px;
+                background: #BBBBBB;
+                margin: 2px 0;
+            }
+
+            QSlider::handle:horizontal {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #66e, stop:1 #99f);
+                border: 1px solid #5c5c5c;
+                width: 18px;
+                margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+                border-radius: 3px;
+            }
+            """
+        )
         self.verticalLayout_5.addWidget(self.horizontalSlider)
         self.gridLayout_3.addLayout(self.verticalLayout_5, 1, 1, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
