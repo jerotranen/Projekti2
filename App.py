@@ -88,6 +88,7 @@ class MyApp(QMainWindow):
             self.finalize_weather_image(image_url)
         else:
             pass
+            print("weather icon yet to be introduced")
         
     def finalize_weather_image(self, image_url):
         pixmap = QtGui.QPixmap()
