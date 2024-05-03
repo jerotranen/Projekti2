@@ -2,6 +2,8 @@ import sys
 import sqlite3
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QStringListModel, QDate, Qt
+from PyQt5 import QtCore, QtGui, QtWidgets
+import requests
 from mainwin import Ui_MainWindow 
 from Weather import Weather
 
@@ -31,6 +33,7 @@ class MyApp(QMainWindow):
 
         # Jos tablea ei ole eli siis voi poistaa kun on pysyvä db
         self.create_tasks_table()
+        self.weathertest(0, QDate.currentDate())
 
     def create_tasks_table(self):
         self.cur.execute('''
@@ -43,6 +46,56 @@ class MyApp(QMainWindow):
             )
         ''')
         self.conn.commit()
+
+    def update_weather_image(self, weather_code, selected_hour):
+        hour = int(selected_hour.split(':')[0]) 
+        is_day = 6 <= hour < 18 
+
+        weather_code_int = int(weather_code)
+        if weather_code_int == 0:
+
+            if is_day:
+                image_path = "./resources/sun.png"
+                image_url = QtCore.QUrl.fromLocalFile(image_path)
+                self.finalize_weather_image(image_url)
+            else:
+                image_path = "./resources/night.png"
+                image_url = QtCore.QUrl.fromLocalFile(image_path)
+                self.finalize_weather_image(image_url)
+
+        elif weather_code_int == (1 or 2):
+
+            if is_day:
+                image_path = "./resources/cloudy.png"
+                image_url = QtCore.QUrl.fromLocalFile(image_path)
+                self.finalize_weather_image(image_url)
+            else:
+                image_path = "./resources/cloudy-night.png"
+                image_url = QtCore.QUrl.fromLocalFile(image_path)
+                self.finalize_weather_image(image_url)
+
+        elif weather_code_int == (3):
+            image_path = "./resources/cloud.png"
+            image_url = QtCore.QUrl.fromLocalFile(image_path)
+            self.finalize_weather_image(image_url)
+        elif (50 < weather_code_int > 86):
+            image_path = "./resources/raining.png"
+            image_url = QtCore.QUrl.fromLocalFile(image_path)
+            self.finalize_weather_image(image_url)
+        elif (weather_code_int > 90):
+            image_path = "./resources/thunderstorm.png"
+            image_url = QtCore.QUrl.fromLocalFile(image_path)
+            self.finalize_weather_image(image_url)
+        else:
+            pass
+        
+    def finalize_weather_image(self, image_url):
+        pixmap = QtGui.QPixmap()
+        pixmap.load(image_url.toLocalFile())
+        scene = QtWidgets.QGraphicsScene()
+        pixmap_item = QtWidgets.QGraphicsPixmapItem(pixmap)
+        scene.addItem(pixmap_item)
+        self.ui.small_graphicsView.setScene(scene)
     
     # Funktio joka näyttää haetun säädatan käyttöliittymässä seuraavan 14 päivän aikana
     def weathertest(self, slider_value, selected_date):
@@ -81,12 +134,13 @@ class MyApp(QMainWindow):
         wind_speed = "{:.1f}".format(selected_hour_data['wind_speed_10m'])
         rain = "{:.1f}".format(selected_hour_data['rain'])
         uv_index = "{:.1f}".format(selected_hour_data['uv_index'])
+        weather_code = selected_hour_data['weather_code']
 
         self.ui.label.setText(f'Temp: {temp}°C\n at {selected_hour}')
         self.ui.label_2.setText(f'Wind: {wind_speed} m/s\n at {selected_hour}')
         self.ui.label_3.setText(f'Rain: {rain} mm\n at {selected_hour}')
         self.ui.label_4.setText(f'UV: {uv_index}\n at {selected_hour}')
-
+        self.update_weather_image(weather_code, selected_hour)
 
     # Kellonajan valinta säädatalle
     def handle_slider_change(self, value):
@@ -101,7 +155,7 @@ class MyApp(QMainWindow):
     def deleteOne(self):
         if self.selected_task:
             # Koska selected_task on time + task, niin erotetaan ne toisistaan, jotta SQL toimii oikein
-            # Muuten yksittäistä taskia ei voi jostain syystä poistaa vain päivämäärällä(?)
+            # Muuten yksittäistä taskia ei voi poistaa vain päivämäärällä(?)
             selected_time, selected_task = self.selected_task.split(': ', 1)
             selected_date = self.ui.calendarWidget.selectedDate()
             year = selected_date.year()
@@ -120,7 +174,7 @@ class MyApp(QMainWindow):
         day = selected_date.day()
         self.cur.execute("SELECT task, time FROM tasks WHERE year=? AND month=? AND day=? ORDER BY time", (year, month, day))
         task_data = self.cur.fetchall()
-        tasks_with_time = [f"{row[1]}: {row[0]}" for row in task_data]  # Concatenate time with task
+        tasks_with_time = [f"{row[1]}: {row[0]}" for row in task_data]
         self.task_model.setStringList(tasks_with_time)
         self.weathertest(0, selected_date)
 

@@ -19,7 +19,7 @@ class Weather:
         params = {
             "latitude": 60.4518,
             "longitude": 22.2666,
-            "hourly": ["temperature_2m", "rain", "wind_speed_10m", "uv_index"],
+            "hourly": ["temperature_2m", "rain", "wind_speed_10m", "uv_index", "weather_code"],
             "wind_speed_unit": "ms",
             "forecast_days": 14
         }
@@ -38,6 +38,7 @@ class Weather:
         hourly_rain = hourly.Variables(1).ValuesAsNumpy()
         hourly_wind_speed_10m = hourly.Variables(2).ValuesAsNumpy()
         hourly_uv_index = hourly.Variables(3).ValuesAsNumpy()
+        hourly_weather_code = hourly.Variables(4).ValuesAsNumpy()
 
         hourly_data = {"date": pd.date_range(
         start = pd.to_datetime(hourly.Time(), unit = "s", utc = True),
@@ -50,6 +51,7 @@ class Weather:
         hourly_data["rain"] = hourly_rain
         hourly_data["wind_speed_10m"] = hourly_wind_speed_10m
         hourly_data["uv_index"] = hourly_uv_index
+        hourly_data["weather_code"] = hourly_weather_code
 
         hourly_dataframe = pd.DataFrame(data = hourly_data)
         print(hourly_dataframe)
