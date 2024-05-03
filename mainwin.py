@@ -23,7 +23,7 @@ class Ui_MainWindow(object):
         self.graphicsView.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.graphicsView.setObjectName("graphicsView")
         self.gridLayout_2.addWidget(self.graphicsView, 0, 0, 0, 0)
-        pixmap = QtGui.QPixmap("./resources/background.png")
+        pixmap = QtGui.QPixmap("./resources/background2.png")
         pixmap_item = QtWidgets.QGraphicsPixmapItem(pixmap)
         self.scene = QtWidgets.QGraphicsScene()
         self.scene.addItem(pixmap_item)
@@ -38,6 +38,15 @@ class Ui_MainWindow(object):
         self.small_graphicsView.setMaximumSize(QtCore.QSize(64, 64))
         self.small_graphicsView.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.small_graphicsView.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.small_graphicsView.setStyleSheet(
+            """
+            QGraphicsView {
+                background: transparent;
+                border: none;
+                margin: 0px;
+            }
+            """
+        )
         self.gridLayout_2.addWidget(self.small_graphicsView, 1, 1, 1, 1)
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
         self.label_4.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing)
