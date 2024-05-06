@@ -52,43 +52,23 @@ class MyApp(QMainWindow):
         is_day = 6 <= hour < 18 
 
         weather_code_int = int(weather_code)
+        print(weather_code_int)
         if weather_code_int == 0:
-
-            if is_day:
-                image_path = "./resources/sun.png"
-                image_url = QtCore.QUrl.fromLocalFile(image_path)
-                self.finalize_weather_image(image_url)
-            else:
-                image_path = "./resources/night.png"
-                image_url = QtCore.QUrl.fromLocalFile(image_path)
-                self.finalize_weather_image(image_url)
-
-        elif weather_code_int == (1 or 2):
-
-            if is_day:
-                image_path = "./resources/cloudy.png"
-                image_url = QtCore.QUrl.fromLocalFile(image_path)
-                self.finalize_weather_image(image_url)
-            else:
-                image_path = "./resources/cloudy-night.png"
-                image_url = QtCore.QUrl.fromLocalFile(image_path)
-                self.finalize_weather_image(image_url)
-
-        elif weather_code_int == (3):
+            image_path = "./resources/sun.png" if is_day else "./resources/night.png"
+        elif weather_code_int in (1, 2):
+            image_path = "./resources/cloudy.png" if is_day else "./resources/cloudy-night.png"
+        elif weather_code_int == 3:
             image_path = "./resources/cloud.png"
-            image_url = QtCore.QUrl.fromLocalFile(image_path)
-            self.finalize_weather_image(image_url)
-        elif (50 < weather_code_int > 86):
+        elif 50 < weather_code_int < 86:
             image_path = "./resources/raining.png"
-            image_url = QtCore.QUrl.fromLocalFile(image_path)
-            self.finalize_weather_image(image_url)
-        elif (weather_code_int > 90):
+        elif weather_code_int >= 90:
             image_path = "./resources/thunderstorm.png"
-            image_url = QtCore.QUrl.fromLocalFile(image_path)
-            self.finalize_weather_image(image_url)
         else:
-            pass
-            print("weather icon yet to be introduced")
+            print("Weather icon yet to be introduced")
+            return
+
+        image_url = QtCore.QUrl.fromLocalFile(image_path)
+        self.finalize_weather_image(image_url)
         
     def finalize_weather_image(self, image_url):
         pixmap = QtGui.QPixmap()
@@ -131,6 +111,7 @@ class MyApp(QMainWindow):
         selected_hour_data = selected_hour_data.iloc[slider_value]
 
         selected_hour = selected_hour_data.name.strftime("%H:%M")
+        # Pyöristetään luvut luettavampaan muotoon
         temp = "{:.1f}".format(selected_hour_data['temperature_2m'])
         wind_speed = "{:.1f}".format(selected_hour_data['wind_speed_10m'])
         rain = "{:.1f}".format(selected_hour_data['rain'])
