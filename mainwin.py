@@ -3,7 +3,7 @@ from PyQt5.QtGui import QFont
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
+        MainWindow.setObjectName("Jeremiaksen Task Manager")
         MainWindow.resize(837, 553)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -142,7 +142,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Jeremiaksen Task Manager"))
         self.label_4.setText(_translate("MainWindow", "TextLabel4"))
         self.label_3.setText(_translate("MainWindow", "TextLabel3"))
         self.label_2.setText(_translate("MainWindow", "TextLabel2"))

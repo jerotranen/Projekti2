@@ -1,11 +1,13 @@
 import sys
 import sqlite3
+import threading
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QStringListModel, QDate, Qt
 from PyQt5 import QtCore, QtGui, QtWidgets
-import requests
 from mainwin import Ui_MainWindow 
 from Weather import Weather
+import Notification
+
 
 class MyApp(QMainWindow):
     def __init__(self):
@@ -33,7 +35,12 @@ class MyApp(QMainWindow):
 
         # Jos tablea ei ole eli siis voi poistaa kun on pysyvä db
         self.create_tasks_table()
-        self.weathertest(0, QDate.currentDate())
+        #self.weathertest(0, QDate.currentDate())
+
+        # Ladataan tämän päivän tehtävät muistutusta varten
+        self.tasksToRemind = None
+        self.loadTasks()
+        tasksToExport = self.tasksToRemind
 
     def create_tasks_table(self):
         self.cur.execute('''
@@ -46,6 +53,15 @@ class MyApp(QMainWindow):
             )
         ''')
         self.conn.commit()
+
+    def loadTasks(self):
+        loadWithDate = QDate.currentDate()
+        year = loadWithDate.year()
+        month = loadWithDate.month()
+        day = loadWithDate.day()
+        self.cur.execute("SELECT task, time FROM tasks WHERE year=? AND month=? AND day=? ORDER BY time", (year, month, day))
+        loadedtasks = self.cur.fetchall()
+        self.tasksToRemind = [f"{row[1]}: {row[0]}" for row in loadedtasks]
 
     def update_weather_image(self, weather_code, selected_hour):
         hour = int(selected_hour.split(':')[0]) 
@@ -127,7 +143,7 @@ class MyApp(QMainWindow):
     # Kellonajan valinta säädatalle
     def handle_slider_change(self, value):
         selected_date = self.ui.calendarWidget.selectedDate()
-        self.weathertest(value, selected_date)
+        #self.weathertest(value, selected_date)
 
     # Yksittäisen tehtävän valitseminen
     def handle_task_click(self, index):
@@ -158,7 +174,7 @@ class MyApp(QMainWindow):
         task_data = self.cur.fetchall()
         tasks_with_time = [f"{row[1]}: {row[0]}" for row in task_data]
         self.task_model.setStringList(tasks_with_time)
-        self.weathertest(0, selected_date)
+        #self.weathertest(0, selected_date)
 
     # Yhden tehtävän lisääminen päivälle
     def sendOne(self):
@@ -183,10 +199,15 @@ class MyApp(QMainWindow):
         self.conn.commit()
         self.handle_date_selection()
 
+# Notifikaatioille oma threadi
+def start_notification_thread(tasksToRemind):
+    threading.Thread(target=Notification.main, args=(tasksToRemind,)).start()
+
 def main():
     app = QApplication(sys.argv)
     window = MyApp()
     window.show()
+    start_notification_thread(window.tasksToRemind)
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
