@@ -35,7 +35,7 @@ class MyApp(QMainWindow):
 
         # Jos tablea ei ole eli siis voi poistaa kun on pysyvä db
         self.create_tasks_table()
-        #self.weathertest(0, QDate.currentDate())
+        self.weathertest(0, QDate.currentDate())
 
         # Ladataan tämän päivän tehtävät muistutusta varten
         self.tasksToRemind = None
@@ -143,7 +143,7 @@ class MyApp(QMainWindow):
     # Kellonajan valinta säädatalle
     def handle_slider_change(self, value):
         selected_date = self.ui.calendarWidget.selectedDate()
-        #self.weathertest(value, selected_date)
+        self.weathertest(value, selected_date)
 
     # Yksittäisen tehtävän valitseminen
     def handle_task_click(self, index):
@@ -174,7 +174,7 @@ class MyApp(QMainWindow):
         task_data = self.cur.fetchall()
         tasks_with_time = [f"{row[1]}: {row[0]}" for row in task_data]
         self.task_model.setStringList(tasks_with_time)
-        #self.weathertest(0, selected_date)
+        self.weathertest(0, selected_date)
 
     # Yhden tehtävän lisääminen päivälle
     def sendOne(self):
