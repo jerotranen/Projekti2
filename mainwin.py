@@ -124,9 +124,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.pushButton_3)
         self.gridLayout_3.addLayout(self.horizontalLayout_2, 3, 0, 1, 2)
 
-        self.gridLayout_3.setColumnStretch(0, 1)  # Let the left column expand horizontally
-        self.gridLayout_3.setRowStretch(0, 1)     # Let the top row expand vertically
-        self.verticalLayout_5.addWidget(QtWidgets.QWidget())  # Add spacer to push the slider to the bottom
+        self.gridLayout_3.setColumnStretch(0, 1) 
+        self.gridLayout_3.setRowStretch(0, 1)     
+        self.verticalLayout_5.addWidget(QtWidgets.QWidget()) 
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
