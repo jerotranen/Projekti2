@@ -28,6 +28,7 @@ if __name__ == "__main__":
     month = today.month()
     day = today.day()
     # Notification threadia varten tämän päivän taskit
+    model.create_tasks_table()
     tasksToRemind = model.loadTasks(year, month, day)
     # Ja käynnistetään thread
     start_notification_thread(tasksToRemind)

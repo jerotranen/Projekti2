@@ -1,5 +1,3 @@
-# https://www.programiz.com/python-programming/methods/built-in/classmethod for classmethod
-
 import Model
 import Gui
 
